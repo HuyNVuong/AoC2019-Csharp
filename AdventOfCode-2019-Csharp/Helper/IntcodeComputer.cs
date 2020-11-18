@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace AdventOfCode_2019_Csharp.Helper
@@ -18,7 +19,7 @@ namespace AdventOfCode_2019_Csharp.Helper
         public List<int> Instructions { get; set; }
         public List<int> Inputs { get; set; }
         public List<int> Outputs { get; set; }
-
+        public int? StartingPosition { get; set; }
 
         public void Set(IDictionary<int, int> dictionary)
         {
@@ -28,26 +29,32 @@ namespace AdventOfCode_2019_Csharp.Helper
             }
         }
 
-        public bool ProcessInstruction()
+        public bool ProcessInstruction(bool returnIfOutputFound = false)
         {
-            var i = 0;
-            while (i != Halts)
+            var i = StartingPosition ?? 0;
+            while (true)
             {
-                var (opcode, _, modeB, modeC) = GetOpcodeAndMode(Instructions[i]);
+                if (returnIfOutputFound && Outputs.Any())
+                {
+                    StartingPosition = i;
+                    return true;
+                }
+
+                var (opcode, modeA, modeB, modeC) = GetOpcodeAndMode(Instructions[i]);
                 int nextInstruction;
                 switch (opcode)
                 {
                     case Adds:
-                        nextInstruction = AddsInstruction(i, modeB, modeC);
+                        nextInstruction = AddsInstruction(i, modeB, modeC, modeA);
                         break;
                     case Multiplies:
-                        nextInstruction = MultipliesInstruction(i, modeB, modeC);
+                        nextInstruction = MultipliesInstruction(i, modeB, modeC, modeA);
                         break;
                     case SaveInput:
-                        nextInstruction = SaveInputInstruction(i);
+                        nextInstruction = SaveInputInstruction(i, modeC);
                         break;
                     case Output:
-                        nextInstruction = OutputInstruction(i, modeB);
+                        nextInstruction = OutputInstruction(i, modeC);
                         break;
                     case JumpIfTrue:
                         nextInstruction = JumpIfTrueInstruction(i, modeC, modeB);
@@ -56,15 +63,15 @@ namespace AdventOfCode_2019_Csharp.Helper
                         nextInstruction = JumpIfFalseInstruction(i, modeC, modeB);
                         break;
                     case LessThan:
-                        nextInstruction = LessThanInstruction(i, modeB, modeC);
+                        nextInstruction = LessThanInstruction(i, modeB, modeC, modeA);
                         break;
                     case IfEquals:
-                        nextInstruction = IfEqualsInstruction(i, modeB, modeC);
+                        nextInstruction = IfEqualsInstruction(i, modeB, modeC, modeA);
                         break;
                     case Halts:
                         return true;
                     default:
-                        return false;
+                        throw new Exception($"Invalid Op code {opcode}");
                 }
 
                 i = nextInstruction;
@@ -99,6 +106,7 @@ namespace AdventOfCode_2019_Csharp.Helper
         {
             var a = modeA == 0 ? Instructions[i + 1] : i + 1;
             Instructions[a] = Inputs.First();
+            Inputs.RemoveAt(0);
 
             return i + 2;
         }

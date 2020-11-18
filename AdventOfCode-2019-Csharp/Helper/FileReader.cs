@@ -11,7 +11,7 @@ namespace AdventOfCode_2019_Csharp.Helper
         {
             var lines = File.ReadAllText(fileLocation)
                 .Split(delimiter)
-                .Select(line => (T) Convert.ChangeType(line.Trim(new char[]{'\r', '\n'}), typeof(T)))
+                .Select(line => (T) Convert.ChangeType(line.Trim('\r', '\n'), typeof(T)))
                 .ToList();
 
             return lines;

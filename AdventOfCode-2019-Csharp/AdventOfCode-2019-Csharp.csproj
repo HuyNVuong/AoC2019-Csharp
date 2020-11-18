@@ -7,42 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Update="Data\Day01.txt">
+    <None Update="Data\*.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Pack>true</Pack>
       <PackageCopyToOutput>true</PackageCopyToOutput>
     </None>
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="Data\Day02.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Pack>true</Pack>
-      <PackageCopyToOutput>true</PackageCopyToOutput>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="Data\Day03.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Pack>true</Pack>
-      <PackageCopyToOutput>true</PackageCopyToOutput>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="Data\Day05.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Pack>true</Pack>
-      <PackageCopyToOutput>true</PackageCopyToOutput>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="Data\Day06.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Pack>true</Pack>
-      <PackageCopyToOutput>true</PackageCopyToOutput>
-    </None>
-  </ItemGroup>
 </Project>

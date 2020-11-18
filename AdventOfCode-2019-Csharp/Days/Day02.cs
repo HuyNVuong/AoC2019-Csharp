@@ -18,11 +18,11 @@ namespace AdventOfCode_2019_Csharp.Days
             Console.WriteLine(noun * 100 + verb);
         }
 
-        private static int ExecuteIntcodeComputerFromInstruction(List<int> instruction)
+        private static int ExecuteIntcodeComputerFromInstruction(List<int> instructions)
         {
             var intCodeComputer = new IntcodeComputer
             {
-                Instructions = instruction.Select(x => x).ToList()
+                Instructions = instructions.Select(x => x).ToList()
             };
             intCodeComputer.Set(new Dictionary<int, int>
             {
