@@ -4,9 +4,9 @@ namespace AdventOfCode_2019_Csharp
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
-            Day07.Solve();
+            Day12.Solve();
         }
     }
 }

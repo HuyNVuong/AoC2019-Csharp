@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace AdventOfCode_2019_Csharp.Helper
 {
-    public class IntcodeComputer
+    public class BigIntcodeComputer
     {
         private const int Halts = 99;
         private const int Adds = 1;
@@ -17,11 +17,11 @@ namespace AdventOfCode_2019_Csharp.Helper
         private const int IfEquals = 8;
         private const int AdjustBase = 9;
 
-        public List<int> Instructions { get; set; }
-        public List<int> Inputs { get; set; }
-        public List<int> Outputs { get; set; }
-        public int? StartingPosition { get; set; }
-        public int? RelativeBase { get; set; }
+        public Dictionary<long, long> Instructions { get; set; }
+        public List<long> Inputs { get; set; }
+        public List<long> Outputs { get; set; }
+        public long? StartingPosition { get; set; }
+        public long? RelativeBase { get; set; }
 
         public void Set(IDictionary<int, int> dictionary)
         {
@@ -31,19 +31,19 @@ namespace AdventOfCode_2019_Csharp.Helper
             }
         }
 
-        public bool ProcessInstruction(bool returnIfOutputFound = false)
+        public bool ProcessInstruction(bool returnIfOutputFound = false, int numberOfOutputsExpected = 1)
         {
             var i = StartingPosition ?? 0;
             while (true)
             {
-                if (returnIfOutputFound && Outputs.Any())
+                if (returnIfOutputFound && Outputs.Any() && Outputs.Count == numberOfOutputsExpected)
                 {
                     StartingPosition = i;
-                    return true;
+                    return false;
                 }
 
                 var (opcode, thirdParameterMode, secondParameterMode, firstParameterMode) = GetOpcodeAndMode(Instructions[i]);
-                int nextInstruction;
+                long nextInstruction;
                 switch (opcode)
                 {
                     case Adds:
@@ -83,38 +83,38 @@ namespace AdventOfCode_2019_Csharp.Helper
             }
         }
 
-        private int AddsInstruction(int i, int modeB, int modeC, int modeA = 0)
+        private long AddsInstruction(long i, int modeB, int modeC, int modeA = 0)
         {
             var a = GetPositionValue(i + 1, modeC);
             var b = GetPositionValue(i + 2, modeB);
             var c = GetPositionValue(i + 3, modeA);
-            var result = Instructions[a] + Instructions[b];
-            Instructions[c] = result;
+            var result = Instructions.GetOrDefault(a) + Instructions.GetOrDefault(b);
+            Instructions.AddOrUpdateExisting(c, result);
 
             return i + 4;
         }
 
-        private int MultipliesInstruction(int i, int modeB, int modeC, int modeA = 0)
+        private long MultipliesInstruction(long i, int modeB, int modeC, int modeA = 0)
         {
             var a = GetPositionValue(i + 1, modeC);
             var b = GetPositionValue(i + 2, modeB);
             var c = GetPositionValue(i + 3, modeA);
-            var result = Instructions[a] * Instructions[b];
-            Instructions[c] = result;
+            var result = Instructions.GetOrDefault(a) * Instructions.GetOrDefault(b);
+            Instructions.AddOrUpdateExisting(c, result);
 
             return i + 4;
         }
 
-        private int SaveInputInstruction(int i, int modeA = 0)
+        private long SaveInputInstruction(long i, int modeA = 0)
         {
             var a = GetPositionValue(i + 1, modeA);
-            Instructions[a] = Inputs.First();
+            Instructions.AddOrUpdateExisting(a, Inputs.First());
             Inputs.RemoveAt(0);
 
             return i + 2;
         }
 
-        private int OutputInstruction(int i, int modeA = 0)
+        private long OutputInstruction(long i, int modeA = 0)
         {
             var a = GetPositionValue(i + 1, modeA);
             Outputs.Add(Instructions[a]);
@@ -122,67 +122,69 @@ namespace AdventOfCode_2019_Csharp.Helper
             return i + 2;
         }
 
-        private int JumpIfTrueInstruction(int i, int modeA, int modeB)
+        private long JumpIfTrueInstruction(long i, int modeA, int modeB)
         {
             var a = GetPositionValue(i + 1, modeA);
             var b = GetPositionValue(i + 2, modeB);
 
-            return Instructions[a] != 0 ? Instructions[b] : i + 3;
+            return Instructions.GetOrDefault(a) != 0 ? Instructions.GetOrDefault(b) : i + 3;
         }
 
-        private int JumpIfFalseInstruction(int i, int modeA, int modeB)
+        private long JumpIfFalseInstruction(long i, int modeA, int modeB)
         {
             var a = GetPositionValue(i + 1, modeA);
             var b = GetPositionValue(i + 2, modeB);
 
-            return Instructions[a] == 0 ? Instructions[b] : i + 3;
+            return Instructions.GetOrDefault(a) == 0 ? Instructions.GetOrDefault(b) : i + 3;
         }
 
-        private int LessThanInstruction(int i, int modeB, int modeC, int modeA = 0)
+        private long LessThanInstruction(long i, int modeB, int modeC, int modeA = 0)
         {
             var a = GetPositionValue(i + 1, modeC);
             var b = GetPositionValue(i + 2, modeB);
             var c = GetPositionValue(i + 3, modeA);
-            Instructions[c] = Instructions[a] < Instructions[b] ? 1 : 0;
+            Instructions.AddOrUpdateExisting(c, Instructions.GetOrDefault(a) < Instructions.GetOrDefault(b) ? 1 : 0);
 
             return i + 4;
         }
 
-        private int IfEqualsInstruction(int i, int modeB, int modeC, int modeA = 0)
+        private long IfEqualsInstruction(long i, int modeB, int modeC, int modeA = 0)
         {
             var a = GetPositionValue(i + 1, modeC);
             var b = GetPositionValue(i + 2, modeB);
             var c = GetPositionValue(i + 3, modeA);
-            Instructions[c] = Instructions[a] == Instructions[b] ? 1 : 0;
+            Instructions.AddOrUpdateExisting(c, Instructions.GetOrDefault(a) == Instructions.GetOrDefault(b) ? 1 : 0);
 
             return i + 4;
         }
 
-        private (int, int, int, int) GetOpcodeAndMode(int code)
-        {
-            var opcode = code % 100;
-            var a = code / 10000;
-            var b = code / 1000 % 10;
-            var c = code / 100 % 10;
-
-            return (opcode, a, b, c);
-        }
-
-        private int AdjustRelativeBaseInstruction(int i, int mode)
+        private long AdjustRelativeBaseInstruction(long i, int mode)
         {
             var a = GetPositionValue(i + 1, mode);
-            RelativeBase ??= RelativeBase + Instructions[a];
+            RelativeBase += Instructions.GetOrDefault(a);
 
             return i + 2;
         }
 
-        private int GetPositionValue(int i, int mode)
+        private (int, int, int, int) GetOpcodeAndMode(long code)
+        {
+            var opcode = (int)code % 100;
+            var a = (int) code / 10000;
+            var b = (int) code / 1000 % 10;
+            var c = (int) code / 100 % 10;
+
+            return (opcode, a, b, c);
+        }
+
+
+
+        private long GetPositionValue(long i, int mode)
         {
             return mode switch
             {
-                0 => Instructions[i],
+                0 => Instructions.GetOrDefault(i),
                 1 => i,
-                2 => RelativeBase ?? 0 + Instructions[i],
+                2 => (RelativeBase ?? 0) + Instructions[i],
                 _ => throw new Exception($"Invalid mode: {mode} value")
             };
         }

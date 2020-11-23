@@ -8,6 +8,11 @@ namespace AdventOfCode_2019_Csharp.Helper
 {
     public static class Utilities
     {
+        public static int Gcd(int a, int b)
+        {
+            return b == 0 ? a : Gcd(b, a % b);
+        }
+
         // Adapted from https://stackoverflow.com/questions/11208446/generating-permutations-of-a-set-most-efficiently
         public static class Permutations
         {

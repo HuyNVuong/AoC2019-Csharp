@@ -49,12 +49,12 @@ namespace AdventOfCode_2019_Csharp.Days
             seen.Add(source);
             while (queue.Any())
             {
-                var current = queue.Dequeue();
-                if (current.Station == destination) return current.Level - 2;
-                foreach (var orbit in adjacencyList[current.Station])
+                var (station, level) = queue.Dequeue();
+                if (station == destination) return level - 2;
+                foreach (var orbit in adjacencyList[station])
                 {
                     if (seen.Contains(orbit)) continue;
-                    queue.Enqueue((orbit, current.Level + 1));
+                    queue.Enqueue((orbit, level + 1));
                     seen.Add(orbit);
                 }
             }
