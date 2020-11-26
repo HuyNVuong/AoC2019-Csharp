@@ -8,9 +8,48 @@ namespace AdventOfCode_2019_Csharp.Helper
 {
     public static class Utilities
     {
+        public static long Lcm(long a, long b, params long[] cs)
+        {
+            var result = a * b / Gcd(a, b);
+            foreach (var c in cs)
+            {
+                result = Lcm(result, c);
+            }
+
+            return result;
+        }
+
+        public static long Gcd(long a, long b)
+        {
+            while (true)
+            {
+                if (b == 0) return a;
+                var a1 = a;
+                a = b;
+                b = a1 % b;
+            }
+        }
+
+        public static int Lcm(int a, int b, params int[] cs)
+        {
+            var result = a * b / Gcd(a, b);
+            foreach (var c in cs)
+            {
+                result = Lcm(result, c);
+            }
+
+            return result;
+        }
+
         public static int Gcd(int a, int b)
         {
-            return b == 0 ? a : Gcd(b, a % b);
+            while (true)
+            {
+                if (b == 0) return a;
+                var a1 = a;
+                a = b;
+                b = a1 % b;
+            }
         }
 
         // Adapted from https://stackoverflow.com/questions/11208446/generating-permutations-of-a-set-most-efficiently

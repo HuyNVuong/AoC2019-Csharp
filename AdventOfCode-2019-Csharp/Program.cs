@@ -6,7 +6,7 @@ namespace AdventOfCode_2019_Csharp
     {
         static void Main()
         {
-            Day12.Solve();
+            Day14.Solve();
         }
     }
 }
